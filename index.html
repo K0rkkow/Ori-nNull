@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OriønNull</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Courier New", Consolas, monospace;
+            background: #050508;
+            color: #c8c8c8;
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* =========================================================
+           MATRIX
+        ========================================================= */
+
+        #matrix-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.12;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+
+            background:
+                linear-gradient(
+                    rgba(0, 255, 65, 0.045) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(0, 255, 65, 0.045) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    transparent 20%,
+                    rgba(5, 5, 8, 0.4) 65%,
+                    #050508 100%
+                );
+        }
+
+        /* =========================================================
+           GLOWS
+        ========================================================= */
+
+        .glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow--green {
+            top: -180px;
+            right: -180px;
+            background: #00ff41;
+        }
+
+        .glow--red {
+            bottom: -180px;
+            left: -180px;
+            background: #ff0040;
+        }
+
+        /* =========================================================
+           CURSOR
+        ========================================================= */
+
+        .cursor-custom {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+
+            border: 2px solid #00ff41;
+            border-radius: 50%;
+
+            pointer-events: none;
+            z-index: 99999;
+
+            transform: translate(-50%, -50%);
+
+            box-shadow:
+                0 0 12px rgba(0, 255, 65, 0.35);
+
+            transition:
+                width 0.15s ease,
+                height 0.15s ease,
+                background 0.15s ease;
+        }
+
+        .cursor-custom.active {
+            width: 31px;
+            height: 31px;
+            background: rgba(0, 255, 65, 0.08);
+        }
+
+        .trail-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99998;
+        }
+
+        .trail {
+            position: absolute;
+
+            width: 4px;
+            height: 4px;
+
+            border-radius: 50%;
+            background: #00ff41;
+
+            box-shadow:
+                0 0 8px #00ff41,
+                0 0 18px rgba(0, 255, 65, 0.3);
+
+            animation:
+                trailFade 0.8s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.2);
+            }
+        }
+
+        /* =========================================================
+           WRAPPER
+        ========================================================= */
+
+        .site-wrapper {
+            position: relative;
+            z-index: 2;
+
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 1.8rem 3rem;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #00ff41,
+                    #00d4ff
+                );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* =========================================================
+           LOGO
+        ========================================================= */
+
+        .icon-top {
+            width: 84px;
+            height: 84px;
+
+            border-radius: 16px;
+
+            background: #0e0e14;
+
+            border: 1.5px solid #00ff41;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            flex-shrink: 0;
+
+            cursor: pointer;
+
+            transition:
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .icon-top:hover {
+            box-shadow:
+                0 0 35px rgba(0, 255, 65, 0.25);
+
+            transform: translateY(-2px);
+        }
+
+        .icon-top img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .fallback {
+            color: #00ff41;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .hero {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            padding:
+                2rem
+                2rem
+                4rem;
+        }
+
+        .hero__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            padding:
+                0.4rem
+                1.2rem;
+
+            border-radius: 100px;
+
+            background:
+                rgba(255, 0, 64, 0.07);
+
+            border:
+                1px solid rgba(255, 0, 64, 0.25);
+
+            color: #ff0040;
+
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+
+            margin-bottom: 2rem;
+        }
+
+        .hero__typing-wrapper {
+            width: 100%;
+
+            min-height:
+                clamp(
+                    7rem,
+                    15vw,
+                    11.5rem
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 0.5rem;
+        }
+
+        .hero__typing {
+            font-size:
+                clamp(
+                    2.2rem,
+                    5.2vw,
+                    4.2rem
+                );
+
+            font-weight: 800;
+
+            line-height: 1.25;
+
+            color: #e0e0e0;
+
+            text-shadow:
+                0 0 30px rgba(0, 255, 65, 0.1);
+        }
+
+        .cursor-blink {
+            display: inline-block;
+
+            width: 3px;
+            height: 1em;
+
+            background: #00ff41;
+
+            margin-left: 5px;
+
+            animation:
+                blink 0.7s step-end infinite;
+
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .hero__sub {
+            max-width: 550px;
+
+            margin-bottom: 2.5rem;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                sans-serif;
+
+            font-size: 1.05rem;
+
+            line-height: 1.7;
+
+            color: #777;
+        }
+
+        /* =========================================================
+           INSTALL
+        ========================================================= */
+
+        .btn-install {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 0.75rem;
+
+            padding:
+                1rem
+                2.8rem;
+
+            border-radius: 8px;
+
+            border:
+                1.5px solid #00ff41;
+
+            background: #0e0e14;
+
+            color: #00ff41;
+
+            text-decoration: none;
+
+            font-size: 1.05rem;
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                background 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .btn-install:hover {
+            background: #00ff41;
+            color: #050508;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 0 45px rgba(0, 255, 65, 0.22);
+        }
+
+        .btn-install svg {
+            width: 20px;
+            height: 20px;
+
+            stroke: currentColor;
+
+            transition:
+                transform 0.25s ease;
+        }
+
+        .btn-install:hover svg {
+            transform: translateY(2px);
+        }
+
+        /* =========================================================
+           VERSION
+        ========================================================= */
+
+        .hero__version {
+            display: flex;
+            align-items: center;
+
+            gap: 0.6rem;
+
+            margin-top: 1.5rem;
+
+            font-size: 0.8rem;
+
+            color: #444;
+        }
+
+        .hero__version .dot {
+            color: #ff0040;
+
+            animation:
+                pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 0.35;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* =========================================================
+           TERMINAL
+        ========================================================= */
+
+        .kali-lines {
+            width: 100%;
+            max-width: 560px;
+
+            margin-top: 2.5rem;
+
+            padding: 0 1rem;
+
+            text-align: left;
+
+            font-size: 0.75rem;
+
+            color: #444;
+        }
+
+        .kali-lines .line {
+            opacity: 0;
+
+            animation:
+                fadeLine 1s ease forwards;
+        }
+
+        .kali-lines .line:nth-child(1) {
+            animation-delay: 1s;
+        }
+
+        .kali-lines .line:nth-child(2) {
+            animation-delay: 2.5s;
+        }
+
+        .kali-lines .line:nth-child(3) {
+            animation-delay: 4s;
+        }
+
+        .kali-lines .prompt {
+            color: #00ff41;
+        }
+
+        .kali-lines .active {
+            color: #00ff41;
+        }
+
+        @keyframes fadeLine {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================================================
+           DOCUMENTATION
+        ========================================================= */
+
+        .documentation {
+            display: none;
+
+            position: relative;
+
+            width: min(1100px, calc(100% - 40px));
+
+            margin:
+                0 auto
+                5rem;
+
+            padding: 3rem;
+
+            background:
+                rgba(8, 8, 13, 0.94);
+
+            border:
+                1px solid rgba(0, 255, 65, 0.16);
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 0 60px rgba(0, 255, 65, 0.04);
+
+            backdrop-filter: blur(12px);
+        }
+
+        .documentation.visible {
+            display: block;
+
+            animation:
+                documentationIn 0.35s ease;
+        }
+
+        @keyframes documentationIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .documentation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+
+            margin-bottom: 2.5rem;
+
+            padding-bottom: 1.5rem;
+
+            border-bottom:
+                1px solid rgba(0, 255, 65, 0.1);
+        }
+
+        .documentation-header h2 {
+            color: #00ff41;
+
+            font-size: 1.5rem;
+
+            letter-spacing: 3px;
+        }
+
+        .documentation-header span {
+            color: #444;
+
+            font-size: 0.7rem;
+
+            letter-spacing: 2px;
+        }
+
+        .doc-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .doc-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .doc-section h3 {
+            color: #00ff41;
+
+            font-size: 1rem;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 0.9rem;
+        }
+
+        .doc-section p {
+            color: #777;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                sans-serif;
+
+            font-size: 0.95rem;
+
+            line-height: 1.8;
+        }
+
+        .doc-section ul {
+            margin-top: 1rem;
+
+            padding-left: 1.4rem;
+
+            color: #777;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                sans-serif;
+
+            line-height: 2;
+        }
+
+        .doc-section li::marker {
+            color: #00ff41;
+        }
+
+        .doc-code {
+            margin-top: 1rem;
+
+            padding: 1rem 1.2rem;
+
+            background: #050508;
+
+            border:
+                1px solid rgba(0, 255, 65, 0.1);
+
+            border-radius: 8px;
+
+            color: #00ff41;
+
+            font-family:
+                "Courier New",
+                monospace;
+
+            font-size: 0.8rem;
+
+            overflow-x: auto;
+        }
+
+        .doc-warning {
+            margin-top: 1rem;
+
+            padding: 1rem 1.2rem;
+
+            border-left:
+                2px solid #ff0040;
+
+            background:
+                rgba(255, 0, 64, 0.04);
+
+            color: #777;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                sans-serif;
+
+            font-size: 0.85rem;
+
+            line-height: 1.7;
+        }
+
+        .close-doc {
+            border:
+                1px solid rgba(0, 255, 65, 0.2);
+
+            background: transparent;
+
+            color: #00ff41;
+
+            padding:
+                0.5rem
+                0.8rem;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-family:
+                "Courier New",
+                monospace;
+
+            transition:
+                background 0.2s ease;
+        }
+
+        .close-doc:hover {
+            background:
+                rgba(0, 255, 65, 0.08);
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        footer {
+            text-align: center;
+
+            padding:
+                2rem
+                2rem
+                2.5rem;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                sans-serif;
+
+            font-size: 0.75rem;
+
+            color: #333;
+
+            letter-spacing: 2px;
+        }
+
+        footer a {
+            color: #00ff41;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition:
+                color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: #00d4ff;
+        }
+
+        .separator {
+            color: #222;
+            margin: 0 7px;
+        }
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+
+        .toast {
+            position: fixed;
+
+            bottom: 28px;
+            left: 50%;
+
+            transform:
+                translateX(-50%)
+                translateY(20px);
+
+            background: #0e0e14;
+
+            border:
+                1px solid #00ff41;
+
+            color: #00ff41;
+
+            padding:
+                0.8rem
+                1.4rem;
+
+            border-radius: 8px;
+
+            font-size: 0.8rem;
+
+            letter-spacing: 1px;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            z-index: 100000;
+
+            box-shadow:
+                0 0 30px
+                rgba(0, 255, 65, 0.15);
+
+            transition:
+                opacity 0.3s ease,
+                transform 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+
+            transform:
+                translateX(-50%)
+                translateY(0);
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+            body {
+                cursor: auto;
+            }
+
+            .cursor-custom,
+            .trail-container {
+                display: none;
+            }
+
+            header {
+                padding:
+                    1rem
+                    1.2rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .icon-top {
+                width: 60px;
+                height: 60px;
+
+                border-radius: 12px;
+            }
+
+            .hero {
+                padding:
+                    2rem
+                    1.2rem
+                    3rem;
+            }
+
+            .hero__badge {
+                font-size: 0.6rem;
+                letter-spacing: 2px;
+            }
+
+            .hero__sub {
+                font-size: 0.9rem;
+            }
+
+            .btn-install {
+                width: 100%;
+                max-width: 360px;
+
+                padding:
+                    0.95rem
+                    1.5rem;
+
+                font-size: 0.9rem;
+            }
+
+            .kali-lines {
+                font-size: 0.62rem;
+            }
+
+            .documentation {
+                width: calc(100% - 24px);
+
+                padding:
+                    1.5rem;
+
+                margin-bottom: 3rem;
+            }
+
+            .documentation-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         MATRIX
+    ========================================================= -->
+
+    <canvas id="matrix-bg"></canvas>
+
+    <div class="glow glow--green"></div>
+    <div class="glow glow--red"></div>
+
+    <!-- Cursor -->
+    <div
+        class="trail-container"
+        id="trailContainer"
+    ></div>
+
+    <div
+        class="cursor-custom"
+        id="cursorCustom"
+    ></div>
+
+    <!-- Toast -->
+    <div
+        class="toast"
+        id="toast"
+    ></div>
+
+
+    <div class="site-wrapper">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <header>
+
+            <div class="logo">
+                OriønNull
+            </div>
+
+            <!-- Le logo n'est volontairement PAS un lien -->
+            <div
+                class="icon-top"
+                id="iconTop"
+                title="OriønNull"
+            >
+
+                <img
+                    src="orion.png"
+                    alt="OriønNull"
+                    id="logoImage"
+                >
+
+                <span
+                    class="fallback"
+                    id="logoFallback"
+                    style="display:none;"
+                >
+                    ØN
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             HERO
+        ====================================================== -->
+
+        <main class="hero">
+
+            <div class="hero__badge">
+                ⏣ ZERO TRUST — v1.0
+            </div>
+
+
+            <div class="hero__typing-wrapper">
+
+                <div
+                    class="hero__typing"
+                    id="typingText"
+                >
+                    <span class="cursor-blink"></span>
+                </div>
+
+            </div>
+
+
+            <p class="hero__sub">
+                Navigateur orienté confidentialité.<br>
+                Minimaliste. Fluide. Sans télémétrie intégrée.
+            </p>
+
+
+            <!-- =================================================
+                 INSTALLATION
+
+                 Le fichier doit être :
+                 ./OriønNull.exe
+            ================================================== -->
+
+            <a
+                class="btn-install"
+                id="installBtn"
+                href="./Ori%C3%B8nNull.exe"
+                download="OriønNull.exe"
+            >
+
+                <span>
+                    ⟫ Installer OriønNull
+                </span>
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                    />
+
+                    <polyline
+                        points="7 10 12 15 17 10"
+                    />
+
+                    <line
+                        x1="12"
+                        y1="15"
+                        x2="12"
+                        y2="3"
+                    />
+                </svg>
+
+            </a>
+
+
+            <p class="hero__version">
+
+                <span class="dot">
+                    ●
+                </span>
+
+                Windows
+
+                <span style="color:#222;">
+                    |
+                </span>
+
+                <span>
+                    x64
+                </span>
+
+                <span style="color:#222;">
+                    |
+                </span>
+
+                v1.0
+
+            </p>
+
+
+            <!-- =================================================
+                 TERMINAL
+            ================================================== -->
+
+            <div class="kali-lines">
+
+                <div class="line">
+                    <span class="prompt">
+                        ┌──(oriønnull㉿system)
+                    </span>
+                    ~$ browser --privacy
+                </div>
+
+                <div class="line">
+                    <span class="prompt">
+                        ┌──(oriønnull㉿system)
+                    </span>
+                    ~$ tracking-protection --active
+                </div>
+
+                <div class="line">
+                    <span class="prompt">
+                        ┌──(oriønnull㉿system)
+                    </span>
+                    ~$ status —
+                    <span class="active">
+                        ● actif
+                    </span>
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- =====================================================
+             DOCUMENTATION
+        ====================================================== -->
+
+        <section
+            class="documentation"
+            id="documentation"
+        >
+
+            <div class="documentation-header">
+
+                <div>
+                    <h2>
+                        DOCUMENTATION
+                    </h2>
+
+                    <span>
+                        ORIØNNNULL / TECHNICAL OVERVIEW
+                    </span>
+                </div>
+
+                <button
+                    class="close-doc"
+                    id="closeDocumentation"
+                    type="button"
+                >
+                    × fermer
+                </button>
+
+            </div>
+
+
+            <!-- 01 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    01. PRÉSENTATION
+                </h3>
+
+                <p>
+                    OriønNull est un navigateur desktop conçu avec
+                    une priorité donnée à la confidentialité, à la
+                    simplicité de l'interface et à la réduction des
+                    données persistantes générées localement.
+                </p>
+
+            </div>
+
+
+            <!-- 02 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    02. MOTEUR
+                </h3>
+
+                <p>
+                    L'application utilise Qt WebEngine pour afficher
+                    les pages Web. Le moteur Web repose sur Chromium
+                    fourni par Qt WebEngine.
+                </p>
+
+                <div class="doc-code">
+                    Python + PySide6 + Qt WebEngine + Chromium
+                </div>
+
+            </div>
+
+
+            <!-- 03 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    03. COOKIES
+                </h3>
+
+                <p>
+                    Le profil utilisé par OriønNull est configuré
+                    pour ne pas conserver les cookies de manière
+                    persistante.
+                </p>
+
+                <div class="doc-code">
+                    QWebEngineProfile.NoPersistentCookies
+                </div>
+
+            </div>
+
+
+            <!-- 04 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    04. CACHE
+                </h3>
+
+                <p>
+                    Le cache HTTP du profil est configuré en mémoire.
+                    L'objectif est d'éviter la conservation persistante
+                    du cache HTTP par le profil du navigateur.
+                </p>
+
+                <div class="doc-code">
+                    MemoryHttpCache
+                    ·
+                    Cache maximum configuré à 0
+                </div>
+
+            </div>
+
+
+            <!-- 05 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    05. STOCKAGE WEB
+                </h3>
+
+                <p>
+                    Le stockage local du moteur WebEngine est désactivé
+                    dans la configuration du navigateur.
+                </p>
+
+                <div class="doc-code">
+                    LocalStorageEnabled = false
+                </div>
+
+            </div>
+
+
+            <!-- 06 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    06. SYNCHRONISATION
+                </h3>
+
+                <p>
+                    Plusieurs mécanismes Chromium associés à la
+                    synchronisation et aux communications en arrière-plan
+                    sont désactivés dans la configuration de lancement
+                    de l'application.
+                </p>
+
+                <div class="doc-code">
+                    --disable-sync
+                    --disable-background-networking
+                    --disable-default-apps
+                </div>
+
+            </div>
+
+
+            <!-- 07 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    07. TÉLÉMÉTRIE
+                </h3>
+
+                <p>
+                    OriønNull ne possède pas de système de télémétrie
+                    applicative volontairement intégré au projet.
+                    Certaines communications peuvent toutefois dépendre
+                    du moteur Web, du système d'exploitation ou des
+                    sites Web visités.
+                </p>
+
+            </div>
+
+
+            <!-- 08 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    08. JAVASCRIPT
+                </h3>
+
+                <p>
+                    JavaScript reste activé afin de permettre aux sites
+                    modernes de fonctionner. Certaines capacités
+                    spécifiques sont cependant désactivées.
+                </p>
+
+                <div class="doc-code">
+                    JavascriptEnabled = true
+                    <br>
+                    JavascriptCanOpenWindows = false
+                </div>
+
+            </div>
+
+
+            <!-- 09 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    09. WEBGL & PLUGINS
+                </h3>
+
+                <p>
+                    WebGL et les plugins WebEngine sont désactivés dans
+                    la configuration actuelle afin de réduire certaines
+                    surfaces fonctionnelles inutiles au navigateur.
+                </p>
+
+                <div class="doc-code">
+                    WebGLEnabled = false
+                    <br>
+                    PluginsEnabled = false
+                </div>
+
+            </div>
+
+
+            <!-- 10 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    10. PERMISSIONS
+                </h3>
+
+                <p>
+                    Les demandes de fonctionnalités du navigateur sont
+                    refusées par défaut dans le profil utilisé par
+                    OriønNull.
+                </p>
+
+                <div class="doc-code">
+                    PermissionDenyByUser
+                </div>
+
+            </div>
+
+
+            <!-- 11 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    11. DNS & CHIFFREMENT
+                </h3>
+
+                <p>
+                    Le chiffrement d'une connexion HTTPS protège les
+                    données échangées entre le navigateur et le serveur
+                    lorsque le site utilise HTTPS. Cela ne signifie pas
+                    que toutes les informations réseau sont invisibles.
+                </p>
+
+                <div class="doc-warning">
+                    Important : OriønNull ne doit pas être présenté comme
+                    garantissant une anonymisation totale. HTTPS, DNS
+                    chiffré, VPN et Tor sont des mécanismes différents.
+                    Le niveau réel de confidentialité dépend également
+                    du réseau, du système et des sites visités.
+                </div>
+
+            </div>
+
+
+            <!-- 12 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    12. RECHERCHE
+                </h3>
+
+                <p>
+                    OriønNull permet de choisir différents moteurs de
+                    recherche depuis son interface.
+                </p>
+
+                <div class="doc-code">
+                    DuckDuckGo · Google · Brave · Bing · Ecosia
+                    · Qwant · SearXNG
+                </div>
+
+            </div>
+
+
+            <!-- 13 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    13. DONNÉES LOCALES
+                </h3>
+
+                <p>
+                    Le navigateur cherche à réduire les données
+                    persistantes générées par son profil WebEngine.
+                    Cela ne signifie pas que le système d'exploitation,
+                    les serveurs distants ou d'autres composants du
+                    système ne peuvent jamais conserver de données.
+                </p>
+
+            </div>
+
+
+            <!-- 14 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    14. CE QUE ORIØNNNULL NE PROMET PAS
+                </h3>
+
+                <ul>
+                    <li>
+                        Il ne garantit pas l'anonymat absolu.
+                    </li>
+
+                    <li>
+                        Il ne rend pas une connexion Internet invisible.
+                    </li>
+
+                    <li>
+                        Il ne remplace pas un VPN ou Tor.
+                    </li>
+
+                    <li>
+                        Il ne peut pas contrôler les logs des sites
+                        Web visités.
+                    </li>
+
+                    <li>
+                        Il ne peut pas contrôler tous les logs créés
+                        par Windows ou les logiciels tiers.
+                    </li>
+                </ul>
+
+            </div>
+
+
+            <!-- 15 -->
+
+            <div class="doc-section">
+
+                <h3>
+                    15. OBJECTIF
+                </h3>
+
+                <p>
+                    L'objectif d'OriønNull est de proposer un navigateur
+                    simple, rapide et orienté confidentialité, sans
+                    transformer l'interface en panneau de configuration
+                    complexe.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
+        <footer>
+
+            © 2026 OriønNull
+
+            <span class="separator">
+                —
+            </span>
+
+            <a
+                href="https://github.com/K0rkkow"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                GitHub
+            </a>
+
+            <span class="separator">
+                ·
+            </span>
+
+            <a
+                href="#"
+                id="documentationLink"
+            >
+                Documentation
+            </a>
+
+        </footer>
+
+    </div>
+
+
+    <script>
+
+        /* =========================================================
+           MATRIX
+        ========================================================= */
+
+        (function () {
+
+            const canvas =
+                document.getElementById("matrix-bg");
+
+            const ctx =
+                canvas.getContext("2d");
+
+            let width;
+            let height;
+            let columns;
+            let drops = [];
+
+            const chars =
+                "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
+                "ハヒフヘホマミムメモ0123456789<>/\\|";
+
+            function resize() {
+
+                width =
+                    canvas.width =
+                    window.innerWidth;
+
+                height =
+                    canvas.height =
+                    window.innerHeight;
+
+                columns =
+                    Math.floor(width / 18);
+
+                drops =
+                    Array.from(
+                        {
+                            length: columns
+                        },
+                        () =>
+                            Math.floor(
+                                Math.random() *
+                                height /
+                                18
+                            )
+                    );
+            }
+
+            resize();
+
+            window.addEventListener(
+                "resize",
+                resize
+            );
+
+            function draw() {
+
+                ctx.fillStyle =
+                    "rgba(5,5,8,0.06)";
+
+                ctx.fillRect(
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+                ctx.fillStyle =
+                    "#00ff41";
+
+                ctx.font =
+                    "15px monospace";
+
+                ctx.shadowColor =
+                    "#00ff41";
+
+                ctx.shadowBlur = 6;
+
+                for (
+                    let i = 0;
+                    i < drops.length;
+                    i++
+                ) {
+
+                    const char =
+                        chars[
+                            Math.floor(
+                                Math.random() *
+                                chars.length
+                            )
+                        ];
+
+                    const x =
+                        i * 18;
+
+                    const y =
+                        drops[i] * 18;
+
+                    ctx.fillText(
+                        char,
+                        x,
+                        y
+                    );
+
+                    if (
+                        y > height &&
+                        Math.random() > 0.975
+                    ) {
+                        drops[i] = 0;
+                    }
+
+                    if (
+                        Math.random() > 0.98
+                    ) {
+
+                        ctx.fillStyle =
+                            "#bfffbf";
+
+                        ctx.fillText(
+                            char,
+                            x,
+                            y
+                        );
+
+                        ctx.fillStyle =
+                            "#00ff41";
+                    }
+
+                    drops[i]++;
+                }
+
+                ctx.shadowBlur = 0;
+            }
+
+            setInterval(
+                draw,
+                55
+            );
+
+        })();
+
+
+        /* =========================================================
+           TYPING
+        ========================================================= */
+
+        (function () {
+
+            const element =
+                document.getElementById(
+                    "typingText"
+                );
+
+            const phrases = [
+
+                "Navigue dans\nl'inconnu",
+
+                "Efface tes\ntraces",
+
+                "Rien ne te\nretrouve"
+
+            ];
+
+            let phraseIndex = 0;
+            let characterIndex = 0;
+            let deleting = false;
+            let text = "";
+
+            function type() {
+
+                const target =
+                    phrases[phraseIndex];
+
+                if (!deleting) {
+
+                    if (
+                        characterIndex <
+                        target.length
+                    ) {
+
+                        text +=
+                            target[
+                                characterIndex
+                            ];
+
+                        characterIndex++;
+
+                    } else {
+
+                        setTimeout(
+                            () => {
+                                deleting = true;
+                                type();
+                            },
+                            2000
+                        );
+
+                        return;
+                    }
+
+                } else {
+
+                    if (
+                        characterIndex > 0
+                    ) {
+
+                        text =
+                            text.slice(
+                                0,
+                                -1
+                            );
+
+                        characterIndex--;
+
+                    } else {
+
+                        deleting = false;
+
+                        phraseIndex =
+                            (
+                                phraseIndex + 1
+                            ) %
+                            phrases.length;
+
+                        setTimeout(
+                            type,
+                            300
+                        );
+
+                        return;
+                    }
+                }
+
+                element.innerHTML =
+                    text
+                        .replace(
+                            /\n/g,
+                            "<br>"
+                        ) +
+                    '<span class="cursor-blink"></span>';
+
+                setTimeout(
+                    type,
+                    deleting ? 35 : 70
+                );
+            }
+
+            type();
+
+        })();
+
+
+        /* =========================================================
+           CURSOR
+        ========================================================= */
+
+        (function () {
+
+            const cursor =
+                document.getElementById(
+                    "cursorCustom"
+                );
+
+            const container =
+                document.getElementById(
+                    "trailContainer"
+                );
+
+            let lastTrail = 0;
+
+            document.addEventListener(
+                "mousemove",
+                function (event) {
+
+                    const x =
+                        event.clientX;
+
+                    const y =
+                        event.clientY;
+
+                    cursor.style.left =
+                        x + "px";
+
+                    cursor.style.top =
+                        y + "px";
+
+                    const now =
+                        performance.now();
+
+                    if (
+                        now - lastTrail <
+                        25
+                    ) {
+                        return;
+                    }
+
+                    lastTrail = now;
+
+                    const dot =
+                        document.createElement(
+                            "div"
+                        );
+
+                    dot.className =
+                        "trail";
+
+                    dot.style.left =
+                        x + "px";
+
+                    dot.style.top =
+                        y + "px";
+
+                    container.appendChild(
+                        dot
+                    );
+
+                    if (
+                        container.children.length >
+                        50
+                    ) {
+
+                        container.removeChild(
+                            container.firstChild
+                        );
+                    }
+
+                    setTimeout(
+                        () => {
+                            if (
+                                dot.parentNode
+                            ) {
+                                dot.remove();
+                            }
+                        },
+                        850
+                    );
+                }
+            );
+
+
+            function activateCursor(
+                element
+            ) {
+
+                element.addEventListener(
+                    "mouseenter",
+                    () => {
+                        cursor.classList.add(
+                            "active"
+                        );
+                    }
+                );
+
+                element.addEventListener(
+                    "mouseleave",
+                    () => {
+                        cursor.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+            }
+
+
+            document
+                .querySelectorAll(
+                    "a, button, .btn-install, .icon-top"
+                )
+                .forEach(
+                    activateCursor
+                );
+
+        })();
+
+
+        /* =========================================================
+           LOGO
+           
+           IMPORTANT :
+           Aucun href.
+           Aucun reload.
+           Aucun window.location.
+        ========================================================= */
+
+        (function () {
+
+            const logo =
+                document.getElementById(
+                    "iconTop"
+                );
+
+            const image =
+                document.getElementById(
+                    "logoImage"
+                );
+
+            const fallback =
+                document.getElementById(
+                    "logoFallback"
+                );
+
+            image.addEventListener(
+                "error",
+                function () {
+
+                    image.style.display =
+                        "none";
+
+                    fallback.style.display =
+                        "block";
+                }
+            );
+
+            logo.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+                    /*
+                     * Le logo est volontairement
+                     * non interactif.
+                     *
+                     * Il ne recharge donc pas
+                     * la page.
+                     */
+
+                }
+            );
+
+        })();
+
+
+        /* =========================================================
+           DOCUMENTATION
+        ========================================================= */
+
+        (function () {
+
+            const documentation =
+                document.getElementById(
+                    "documentation"
+                );
+
+            const documentationLink =
+                document.getElementById(
+                    "documentationLink"
+                );
+
+            const closeButton =
+                document.getElementById(
+                    "closeDocumentation"
+                );
+
+
+            function openDocumentation(
+                event
+            ) {
+
+                if (event) {
+                    event.preventDefault();
+                }
+
+                documentation.classList.add(
+                    "visible"
+                );
+
+                setTimeout(
+                    () => {
+
+                        documentation.scrollIntoView(
+                            {
+                                behavior: "smooth",
+                                block: "start"
+                            }
+                        );
+
+                    },
+                    30
+                );
+            }
+
+
+            function closeDocumentation(
+                event
+            ) {
+
+                if (event) {
+                    event.preventDefault();
+                }
+
+                documentation.classList.remove(
+                    "visible"
+                );
+
+                window.scrollTo(
+                    {
+                        top: 0,
+                        behavior: "smooth"
+                    }
+                );
+            }
+
+
+            documentationLink.addEventListener(
+                "click",
+                openDocumentation
+            );
+
+
+            closeButton.addEventListener(
+                "click",
+                closeDocumentation
+            );
+
+        })();
+
+
+        /* =========================================================
+           INSTALLATION
+        ========================================================= */
+
+        (function () {
+
+            const button =
+                document.getElementById(
+                    "installBtn"
+                );
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * Le navigateur suit directement :
+                     *
+                     * ./OriønNull.exe
+                     *
+                     * Le fichier doit être présent
+                     * dans le même dossier que index.html.
+                     */
+
+                }
+            );
+
+        })();
+
+    </script>
+
+</body>
+</html>
