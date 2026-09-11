@@ -62,21 +62,13 @@ OriønNull is an **ultra-secure local proxy/browser**, not an absolute network a
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Download & Installation
 
-### Prerequisites
-Ensure your environment has Python 3 and the required Qt dependencies installed:
-```bash
-pip install PySide6 shiboken6
-```
+No programming experience needed. OriønNull comes packaged and ready for deployment:
 
-### Installation & Launch
-Clone the official repository by **k0rkoww** and run the main script:
-```bash
-git clone https://github.com
-cd orionnull
-python main.py
-```
+1. **Download the Release:** Go to the official repository page or website and grab the binary package.
+2. **Extract the Files:** Unzip the folder to your preferred location on your PC.
+3. **Run the Browser:** Double-click the main application icon to launch your secure zero-trace session instantly.
 
 ---
 © 2026 OriønNull by k0rkoww — Released as Open Source for a freer web.
